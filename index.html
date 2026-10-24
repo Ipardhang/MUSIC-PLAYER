@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Music Player</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#111827,#312e81);font-family:system-ui,sans-serif;color:white;padding:20px}
+.player{width:min(520px,100%);padding:28px;border-radius:24px;background:rgba(255,255,255,.1);backdrop-filter:blur(18px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+h1{margin-top:0}.meta{color:#cbd5e1}.controls{display:flex;gap:10px;align-items:center;margin:18px 0}button,input{font:inherit}button{border:0;border-radius:12px;padding:10px 14px;cursor:pointer}input[type=range]{width:100%}.row{display:flex;gap:12px;align-items:center}
+</style>
+</head>
+<body>
+<main class="player">
+<h1>Music Player</h1>
+<div id="title">Choose a song</div>
+<div id="artist" class="meta">Local audio player</div>
+<div class="controls">
+<button id="back">-15s</button><button id="play">Play</button><button id="forward">+15s</button>
+</div>
+<input id="seek" type="range" min="0" max="100" value="0">
+<div class="row"><input id="file" type="file" accept="audio/*"><input id="volume" type="range" min="0" max="1" step=".01" value=".8"></div>
+<audio id="audio"></audio>
+<script>
+const audio=document.getElementById("audio"),file=document.getElementById("file"),play=document.getElementById("play"),seek=document.getElementById("seek");
+file.onchange=()=>{const f=file.files?.[0];if(!f)return;audio.src=URL.createObjectURL(f);document.getElementById("title").textContent=f.name;document.getElementById("artist").textContent="Local file";audio.play();render()}
+play.onclick=()=>audio.paused?audio.play():audio.pause();
+audio.onplay=()=>play.textContent="Pause";audio.onpause=()=>play.textContent="Play";
+document.getElementById("back").onclick=()=>audio.currentTime=Math.max(0,audio.currentTime-15);
+document.getElementById("forward").onclick=()=>audio.currentTime=Math.min(audio.duration||0,audio.currentTime+15);
+audio.ontimeupdate=()=>{seek.value=audio.duration?(audio.currentTime/audio.duration)*100:0};
+seek.oninput=()=>{if(audio.duration)audio.currentTime=(Number(seek.value)/100)*audio.duration};
+document.getElementById("volume").oninput=e=>audio.volume=Number(e.target.value);
+function render(){play.textContent=audio.paused?"Play":"Pause"}
+</script>
+</main>
+</body>
+</html>
